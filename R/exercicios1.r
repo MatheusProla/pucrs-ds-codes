@@ -173,6 +173,10 @@ flights %>% filter(month %in% 7:9)
 flights %>% filter((arr_delay / 60) > 2 & dep_delay <= 0)
 # 13e. Atrasaram pelo menos uma hora, mas fizeram mais de 30 minutos em vôo.
 flights %>% filter(arr_delay > 60 & air_time > 30) 
+
+flights <- flights %>% transform(date = as.Date(paste(year, month, day), "%Y%m%d"))
+flights %>% select(date, arr_delay) %>% na.omit() %>% group_by(MoNtHhhh=format(date, "%m")) %>% summarize(sum=sum(arr_delay))
+
 # 13f. Partiram entre a meia-noite e as 6h (inclusive).
 # 13g. Como você poderia usar o arrange() para classificar todos os valores ausentes no início? (Dica: use is.na ()).
 flights %>% 
@@ -233,7 +237,14 @@ sd(dbinom(0:8, 8, 0.3))
 
 # 17. Considere a função f(x) = x^2-2*x+9, com x pertencente a [1,2]
 # 17a. Verifique se f(x) é uma funçãko densidade de probabilidade (fdp). Dica: ?integrate.
+f <- function(x) {x^2-2*x+9}
+integrate(f, lower=1, upper=2)
+curve(f, from=1, to=2)
+#integrate(f, lower=1, upper=1.1249)
 # 17b. Caso f(x) não seja fdp, encontre uma constante c que garanta que a área de f(x) seja 1.
+f <- function(x) {x^2-2*x+1.6666669}
+integrate(f, lower=1, upper=2)
+curve(f, from=1, to=2)
 
 # 18. Uma pesquisa de torcidas divulgada pelo Ibope em 01/06/10 colocou o Flamengo como líder 
 # na preferência nacional no futebol com 17.2% dos torcedores brasileiros. Conforme o levantamento,
@@ -271,6 +282,9 @@ rownames(P) <- colnames(P) <- LETTERS[1:nrow(P)]
 P
 
 v <- c(100,400,800)
+
+P2 <- P %*% P
+c(100, 400, 800) %*% P
 
 library(markovchain)
 Pmc <- new('markovchain', transitionMatrix = P,
