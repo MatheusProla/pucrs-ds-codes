@@ -86,9 +86,9 @@ rownames(A) <- LETTERS[1:nrow(A)]
 for(i in 1:ncol(A))
   print(sum(A[,i]))
 # 6c. Obtenha a soma das colunas utilizando a função colSums.
-print(colSums(A))
+colSums(A)
 # 6d. Obtenha a soma das colunas utilizando as funções apply e sum.
-print(apply(A, 2, sum))
+apply(A, 2, sum)
 
 # 7. Considere o vetor a seguir.
 v <- c(2:9,6:15)
@@ -169,6 +169,23 @@ flights %>% filter(dest == "HOU")
 flights %>% filter(substring(carrier, 1, 1) == "A" | substring(carrier, 1, 1) == "U" | substring(carrier, 1, 1) == "D")
 # 13d. Partiram no inverno no hemisfério Sul (julho, agosto e setembro).
 flights %>% filter(month %in% 7:9)
+flights %>% filter(month %nin% 7:9)
+
+maior_que_10 <- function(x) {
+  x > 10
+}
+
+menor_que_10 <- Negate(maior_que_10)
+
+maior_que_10(11)
+menor_que_10(9)
+
+"%nin%" <- Negate("%in%")
+"%menor%" <- Negate(">")
+"%maior%" <- Negate("<")
+10 %menor% 12
+100 %maior% 50
+
 # 13d. Cheguaram mais de duas horas atrasado, mas não saíram atrasados.
 flights %>% filter((arr_delay / 60) > 2 & dep_delay <= 0)
 # 13e. Atrasaram pelo menos uma hora, mas fizeram mais de 30 minutos em vôo.
@@ -176,6 +193,8 @@ flights %>% filter(arr_delay > 60 & air_time > 30)
 
 flights <- flights %>% transform(date = as.Date(paste(year, month, day), "%Y%m%d"))
 flights %>% select(date, arr_delay) %>% na.omit() %>% group_by(MoNtHhhh=format(date, "%m")) %>% summarize(sum=sum(arr_delay))
+flights %>% select(date, arr_delay) %>% na.omit() %>% group_by(MoNtHhhh=format(date, "%m"), Year=format(date, "%Y")) %>% summarize(sum=sum(arr_delay))
+flights %>% select(year) %>% unique
 
 # 13f. Partiram entre a meia-noite e as 6h (inclusive).
 # 13g. Como você poderia usar o arrange() para classificar todos os valores ausentes no início? (Dica: use is.na ()).
@@ -265,26 +284,27 @@ z <- abs(qnorm(0.025))
 # 18c. Qual a margem de erro do intervalo do item 17b?
 # 18d. Se você tivesse que construir um intevalo de confiança 92% no item 18b, o que mudaria?
 
+"%matheus%" <- function(x, y) {
+  x+y
+}
 
 # 19. Seja a matriz de transição P a seguir, de três estados (classificação de clientes) A, B, C,
 # considerados semestralmente.
-# 19a. Interprete o valor 0.3.
-# 19b. Obtenha P^2. Interprete o valor da primeira linha, segunda coluna.
-# 19c. Se há respectivamente 100, 400 e 800 em cada classe no instante zero, quantos clientes
-# espera-se em cada classe após 3 passos? Considere o vetor v abaixo.
-# 19d. Após um longo tempo, qual a probabilidade de os clientes irem para cada um dos estados?
-# Faça utilizando uma função personalizada e compare os resultados com markovchain.::steadyStates().
-# 19e. Faça o gráfico da matriz Pmc, considerando a estrutura do pacote markovchain.
-
 (P <- matrix(c(.5,.3,.2, .2,.6,.2, 0,.2,.8),
              nrow = 3, byrow = TRUE))
 rownames(P) <- colnames(P) <- LETTERS[1:nrow(P)]
-P
-
-v <- c(100,400,800)
-
+v0 <- c(100,400,800)
+# 19a. Interprete o valor 0.3.
+# 19b. Obtenha P^2. Interprete o valor da primeira linha, segunda coluna.
 P2 <- P %*% P
-c(100, 400, 800) %*% P
+# 19c. Se há respectivamente 100, 400 e 800 em cada classe no instante zero, quantos clientes
+# espera-se em cada classe após 3 passos? Considere o vetor v abaixo.
+v1 <- v0 %*% P
+v2 <- v1 %*% P
+
+# 19d. Após um longo tempo, qual a probabilidade de os clientes irem para cada um dos estados?
+# Faça utilizando uma função personalizada e compare os resultados com markovchain.::steadyStates().
+# 19e. Faça o gráfico da matriz Pmc, considerando a estrutura do pacote markovchain.
 
 library(markovchain)
 Pmc <- new('markovchain', transitionMatrix = P,
