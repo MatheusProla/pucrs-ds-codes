@@ -168,23 +168,7 @@ flights %>% filter(dest == "HOU")
 # 13c. Foram operados pela United, American ou Delta.
 flights %>% filter(substring(carrier, 1, 1) == "A" | substring(carrier, 1, 1) == "U" | substring(carrier, 1, 1) == "D")
 # 13d. Partiram no inverno no hemisfério Sul (julho, agosto e setembro).
-flights %>% filter(month %in% 7:9)
-flights %>% filter(month %nin% 7:9)
-
-maior_que_10 <- function(x) {
-  x > 10
-}
-
-menor_que_10 <- Negate(maior_que_10)
-
-maior_que_10(11)
-menor_que_10(9)
-
-"%nin%" <- Negate("%in%")
-"%menor%" <- Negate(">")
-"%maior%" <- Negate("<")
-10 %menor% 12
-100 %maior% 50
+flights %>% filter(month %in% 7:9) %>% count
 
 # 13d. Cheguaram mais de duas horas atrasado, mas não saíram atrasados.
 flights %>% filter((arr_delay / 60) > 2 & dep_delay <= 0)
@@ -274,7 +258,7 @@ curve(f, from=1, to=2)
 
 # 18a. Qual a estimativa pontual da proporção de torcedores do Grêmio? E do Inter?
 n <- 2500
-p <- 0.04*n # 4/n
+p <- 0.04
 z <- abs(qnorm(0.025))
 (e <- z*sqrt(p*(1-p)/n))
 (LIpi <- p - e)
@@ -283,10 +267,7 @@ z <- abs(qnorm(0.025))
 # pelo Grêmio, e outro para o Inter.
 # 18c. Qual a margem de erro do intervalo do item 17b?
 # 18d. Se você tivesse que construir um intevalo de confiança 92% no item 18b, o que mudaria?
-
-"%matheus%" <- function(x, y) {
-  x+y
-}
+# qnorm 0.04
 
 # 19. Seja a matriz de transição P a seguir, de três estados (classificação de clientes) A, B, C,
 # considerados semestralmente.
