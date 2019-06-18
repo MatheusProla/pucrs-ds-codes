@@ -1,0 +1,14 @@
+SET job.name 'Word Count in Pig';
+shakespeare = LOAD 'shakespeare' AS (lineoftext:chararray);
+stopwords = LOAD 'stopwords' USING PigStorage() AS (stopword:chararray);
+words = FOREACH shakespeare GENERATE FLATTEN(TOKENIZE(REPLACE(LOWER(TRIM(lineoftext)), '[\\p{Punct},\\p{Cntrl}]',''))) AS word;
+realwords = FILTER words BY SIZE(word) > 0;
+flattened_stopwords = FOREACH stopwords GENERATE FLATTEN(TOKENIZE(stopword)) AS stopword;
+right_joined = JOIN flattened_stopwords BY stopword RIGHT OUTER, realwords BY word;
+meaningful_words = FILTER right_joined BY (flattened_stopwords::stopword IS NULL);
+shakespeare_real_words = FOREACH meaningful_words GENERATE realwords::word AS word;
+grouped = GROUP shakespeare_real_words BY word;
+counted = FOREACH grouped GENERATE group AS word, COUNT(shakespeare_real_words) AS wordcount;
+ordered = ORDER counted BY wordcount DESC;
+top30 = LIMIT ordered 30;
+DUMP top30;
