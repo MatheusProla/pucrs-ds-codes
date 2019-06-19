@@ -16,7 +16,6 @@ if [ ! -d $HIVE_DIRECTORY ];
 then
 	echo "Uncompressing Hive"
 	tar -xf $HIVE_FILENAME
-	mv $HIVE_DIRECTORY "$HOME/$HIVE_DIRECTORY"
 fi
 
 if [ ! -d $DATASET_PATH ]; then
@@ -26,7 +25,7 @@ if [ ! -d $DATASET_PATH ]; then
 	unzip "$DATASET_PATH/$DATASET_FILENAME" -d $DATASET_PATH
 fi
 
-export HIVE_HOME="$HOME/$HIVE_DIRECTORY"
+export HIVE_HOME="$PWD/$HIVE_DIRECTORY"
 
 echo "Setting \$HIVE_HOME to $HIVE_HOME"
 export PATH="$HIVE_HOME/bin:$PATH"
@@ -56,9 +55,9 @@ hadoop fs -put "$PWD/$DATASET_PATH/trips.csv" "$HDFS_HIVE_BIKESHARE/trip/"
 
 USEDB="USE bikeshare;"
 EX6="CREATE DATABASE bikeshare; \
-SHOW DATABASES; $USEDB"
+SHOW DATABASES;"
 
-EX7="$USEDB CREATE EXTERNAL TABLE stations ( \
+EX7="CREATE EXTERNAL TABLE stations ( \
 station_id INT, \
 name STRING, \
 lat DOUBLE, \
@@ -72,7 +71,7 @@ FIELDS TERMINATED BY ',' \
 STORED AS TEXTFILE \
 LOCATION 'hdfs:///$HDFS_HIVE_BIKESHARE/stations';"
 
-EX8="$USEDB CREATE EXTERNAL TABLE trips ( \
+EX8="CREATE EXTERNAL TABLE trips ( \
 trip_id INT, \
 duration INT, \
 start_date STRING, \
@@ -90,19 +89,19 @@ FIELDS TERMINATED BY ',' \
 STORED AS TEXTFILE \
 LOCATION 'hdfs:///$HDFS_HIVE_BIKESHARE/trips';"
 
-EX9="$USEDB SHOW TABLES; \
+EX9="SHOW TABLES; \
 DESCRIBE stations; \
 DESCRIBE trips; \
 DESCRIBE FORMATTED stations; \
 DESCRIBE FORMATTED trips;"
 
-EX10="$USEDB SELECT start_terminal, start_station, COUNT(1) AS count \
+EX10="SELECT start_terminal, start_station, COUNT(1) AS count \
 FROM trips \
 GROUP BY start_terminal, start_station \
 ORDER BY count \
 DESC LIMIT 10;"
 
-EX11="$USEDB SELECT t.trip_id, t.duration, t.start_date, s.name, s.lat, s.long, s.landmark \
+EX11="SELECT t.trip_id, t.duration, t.start_date, s.name, s.lat, s.long, s.landmark \
 FROM stations s \
 JOIN trips t ON s.station_id = t.start_terminal \
 LIMIT 10;"
@@ -110,12 +109,25 @@ LIMIT 10;"
 echo "Executing EX6"
 hive -e "$EX6" 1>ex4-6-stdout.txt 2>ex4-6-stderr.txt
 echo "Executing EX7"
-hive -e "$EX7" 1>ex4-7-stdout.txt 2>ex4-7-stderr.txt
+hive -e "$USEDB $EX7" 1>ex4-7-stdout.txt 2>ex4-7-stderr.txt
 echo "Executing EX8"
-hive -e "$EX8" 1>ex4-8-stdout.txt 2>ex4-8-stderr.txt
+hive -e "$USEDB $EX8" 1>ex4-8-stdout.txt 2>ex4-8-stderr.txt
 echo "Executing EX9"
-hive -e "$EX9" 1>ex4-9-stdout.txt 2>ex4-9-stderr.txt
+hive -e "$USEDB $EX9" 1>ex4-9-stdout.txt 2>ex4-9-stderr.txt
 echo "Executing EX10"
-hive -e "$EX10" 1>ex4-10-stdout.txt 2>ex4-10-stderr.txt
+hive -e "$USEDB $EX10" 1>ex4-10-stdout.txt 2>ex4-10-stderr.txt
 echo "Executing EX11"
-hive -e "$EX11" 1>ex4-11-stdout.txt 2>ex4-11-stderr.txt
+hive -e "$USEDB $EX11" 1>ex4-11-stdout.txt 2>ex4-11-stderr.txt
+
+echo "Explaining EX7"
+hive -e "$USEDB EXPLAIN $EX7" 1>ex4-explain7-stdout.txt 2>ex4-explain7-stderr.txt
+echo "Explaining EX8"
+hive -e "$USEDB EXPLAIN $EX8" 1>ex4-explain8-stdout.txt 2>ex4-explain8-stderr.txt
+echo "Explaining EX9"
+hive -e "$USEDB EXPLAIN $EX9" 1>ex4-explain9-stdout.txt 2>ex4-explain9-stderr.txt
+echo "Explaining EX10"
+hive -e "$USEDB EXPLAIN $EX10" 1>ex4-explain10-stdout.txt 2>ex4-explain10-stderr.txt
+echo "Explaining EX11"
+hive -e "$USEDB EXPLAIN $EX11" 1>ex4-explain11-stdout.txt 2>ex4-explain11-stderr.txt
+
+
